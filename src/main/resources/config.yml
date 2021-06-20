@@ -1,0 +1,4 @@
+kumuluzee:
+  dev:
+    scan-libraries:
+      - rabbit-microprofile

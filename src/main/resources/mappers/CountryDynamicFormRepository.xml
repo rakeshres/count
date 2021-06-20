@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CountryDynamicFormDao">
+    <resultMap id="countryDynamicForm"
+               type="global.citytech.remitpulse.countries.repositories.internal.dao.countrydynamicform.CountryDynamicFormEntity">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="country_iso3" property="countryIso3"/>
+        <result column="type" property="type"/>
+        <result column="effective_from" property="effectiveFrom"/>
+        <result column="effective_to" property="effectiveTo"/>
+        <result column="field_info_list" property="fieldInfoList"/>
+
+        <result column="created_on" property="createdOn"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="last_modified_on" property="lastModifiedOn"/>
+        <result column="last_modified_by" property="lastModifiedBy"/>
+        <result column="deleted_on" property="deletedOn"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <insert id="add"
+            parameterType="global.citytech.remitpulse.countries.repositories.internal.dao.countrydynamicform.CountryDynamicFormEntity">
+      INSERT INTO countries.country_dynamic_form(
+              id,name ,country_iso3 ,type , effective_from ,
+              effective_to,field_info_list,
+              created_on ,created_by
+            )
+    VALUES ( #{id}, #{name}, #{countryIso3}, #{type}, #{effectiveFrom},
+            #{effectiveTo},#{fieldInfoList},
+            #{createdOn}, #{createdBy}
+     )
+    </insert>
+
+    <select id="findAll" resultMap="countryDynamicForm">
+        select * from countries.country_dynamic_form where 1=1
+
+        <if test="id!=null and id!=''">
+            and  id=#{id}
+        </if>
+        <if test="name!=null and name!=''">
+            <bind name="name" value="'%' + name +'%'"/>
+            and replace (name,' ','')
+            ILIKE replace(#{name},' ','')
+        </if>
+        <if test="countryIso3!=null and countryIso3!=''">
+            and country_iso3= #{countryIso3}
+        </if>
+        <if test="type!=null and type!=''">
+            and type=#{type}
+        </if>
+        <if test="activeDate!=null and activeDate!=''">
+            and #{activeDate} between effective_from and effective_to
+        </if>
+        <if test="idList.size()>0">
+            and id in
+            <foreach collection="idList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="filterType=='DATE_OVERLAPPED'  and effectiveFrom!=null and effectiveFrom!=''  and effectiveTo!=null and effectiveTo!='' ">
+            and effective_to >=  cast(#{effectiveFrom} as date)   and effective_from &lt;= cast(#{effectiveTo} as date)
+        </if>
+
+        <if test="sortBy!=null and sortParameter!=null">
+            order by ${sortBy} ${sortParameter}
+        </if>
+        <if test="startingIndex!=null">
+            LIMIT #{pageSize} OFFSET #{startingIndex}
+        </if>
+
+    </select>
+
+    <select id="countTotalRecord" resultType="long">
+        SELECT count(*) from countries.country_dynamic_form
+        where 1=1
+        <if test="name!=null and name!=''">
+            <bind name="name" value="'%' + name +'%'"/>
+            and replace (name,' ','')
+            ILIKE replace(#{name},' ','')
+        </if>
+
+        <if test="id!=null and id!=''">
+            and  id=#{id}
+        </if>
+
+        <if test="countryIso3!=null and countryIso3!=''">
+            and country_iso3= #{countryIso3}
+        </if>
+        <if test="type!=null and type!=''">
+            and type=#{type}
+        </if>
+        <if test="activeDate!=null and activeDate!=''">
+            and #{activeDate} between effective_from and effective_to
+        </if>
+        <if test="filterType=='DATE_OVERLAPPED'  and effectiveFrom!=null and effectiveFrom!=''  and effectiveTo!=null and effectiveTo!='' ">
+            and effective_to >=  cast(#{effectiveFrom} as date)   and effective_from &lt;= cast(#{effectiveTo} as date)
+        </if>
+        <if test="idList.size()>0">
+            and id in
+            <foreach collection="idList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+    <select id="findOne" resultMap="countryDynamicForm">
+        Select * from countries.country_dynamic_form where 1=1
+        <if test="id!=null and id!=''">
+           and  id=#{id}
+        </if>
+        <if test="name!=null and name!=''">
+            and lower(name)=lower(#{name})
+        </if>
+        <if test="countryIso3!=null and countryIso3!=''">
+            and country_iso3= #{countryIso3}
+        </if>
+        <if test="idList.size()>0">
+            and id in
+            <foreach collection="idList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="type!=null and type!=''">
+            and type=#{type}
+        </if>
+        <if test="filterType=='DATE_OVERLAPPED'  and effectiveFrom!=null and effectiveFrom!=''  and effectiveTo!=null and effectiveTo!='' ">
+            and effective_to >=  cast(#{effectiveFrom} as date)   and effective_from &lt;= cast(#{effectiveTo} as date)
+        </if>
+    </select>
+
+
+    <update id="update">
+        update countries.country_dynamic_form
+        <set>
+            <if test="effectiveTo!=null and effectiveTo!=''">
+                effective_to=#{effectiveTo},
+            </if>
+            <if test="effectiveFrom!=null and effectiveFrom!=''">
+                effective_from=#{effectiveFrom},
+            </if>
+            <if test="fieldInfoList!=null and fieldInfoList!=''">
+                field_info_list=#{fieldInfoList},
+            </if>
+            <if test="lastModifiedBy!=null">
+                last_modified_by=#{lastModifiedBy},
+            </if>
+            <if test="lastModifiedOn!=null">
+                last_modified_on=#{lastModifiedOn},
+            </if>
+            <if test="deletedBy!=null">
+                deleted_by=#{deletedBy},
+            </if>
+            <if test="deletedOn!=null">
+                deleted_on=#{deletedOn},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+</mapper>

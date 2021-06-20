@@ -1,0 +1,116 @@
+{
+  "_comment": "This is 1st option",
+  "countryName": "Australia",
+  "numericCode": 666,
+  "iso2": "AU",
+  "iso3": "AUD",
+  "continent": "Asia",
+  "sanctionFilter": 3.3,
+  "doesCountryHasStates": true,
+  "doesCountryHasDistricts": false,
+  "active": true,
+  "operationTypes": [
+    {
+      "code": "SND",
+      "effectiveFrom": "",
+      "effectiveTo": ""
+    },
+
+    {
+      "code": "PY",
+      "effectiveFrom": "",
+      "effectiveTo": ""
+    }
+  ],
+  "currency": [
+    {
+      "name": "USD",
+      "operationType": [
+        {
+          "code": "SND",
+
+          "limits": [
+            {
+              "channel": "Cash",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            },
+            {
+              "channel": "Cash",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            }
+          ]
+        },
+        {
+          "code": "PAYOUT",
+
+          "limits": [
+            {
+              "channel": "Cash",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            },
+            {
+              "channel": "Cash",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NRS",
+      "operationType": [
+        {
+          "code": "SEND",
+
+          "limits": [
+            {
+              "channel": "BNK",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            },
+            {
+              "channel": "BNK",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            }
+          ]
+        },
+        {
+          "code": "PAYOUT",
+          "limits": [
+            {
+              "channel": "CSH",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            },
+            {
+              "channel": "CSH",
+              "from": 10,
+              "to": 100,
+              "effectiveFrom": "12-12-2012",
+              "effectiveTo": "12-12-2012"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

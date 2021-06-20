@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="AuditDao">
+    <resultMap id="audit"
+               type="global.citytech.rabbit.core.audits.AuditLogEntity">
+        <result column="id" property="id"/>
+        <result column="entity" property="entity"/>
+        <result column="entity_key" property="entityKey"/>
+        <result column="action" property="action"/>
+        <result column="status" property="status"/>
+        <result column="new_data" property="newData"/>
+        <result column="old_data" property="oldData"/>
+        <result column="changes" property="changes"/>
+        <result column="requested_on" property="requestedOn"/>
+        <result column="requested_by" property="requestedBy"/>
+        <result column="responded_by" property="respondedBy"/>
+        <result column="responded_on" property="respondedOn"/>
+        <result column="request_remarks" property="requestRemarks"/>
+        <result column="response_remarks" property="responseRemarks"/>
+
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO countries.audit_logs(id, entity, entity_key, action, new_data, old_data,changes, status,
+        requested_on, requested_by)
+        VALUES (#{id}, #{entity}, #{entityKey}, #{action}, #{newData}, #{oldData},#{changes}, #{status},
+         #{requestedOn}, #{requestedBy})
+    </insert>
+
+
+    <select id="findOne" resultMap="audit">
+        Select * from countries.audit_logs
+        where 1=1
+        <if test="entity!=null">
+            and entity=#{entity}
+        </if>
+
+        <if test="entityKey!=null and entityKey!=''">
+            and  entity_key= #{entityKey}
+        </if>
+
+        <if test="statusList.size()>0">
+            and lower(status) in
+            <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+                lower(#{item})
+            </foreach>
+        </if>
+
+        <if test="id!=null">
+            and id=#{id}
+        </if>
+
+        <if test="countryEntity!=null and  countryEntity.name != null">
+            and lower(new_data::jsonb->>'name') ilike lower(#{countryEntity.name})
+        </if>
+        <if test="countryEntity!=null and  countryEntity.iso2 != null">
+            and lower(new_data::jsonb->>'iso2') ilike lower(#{countryEntity.iso2})
+        </if>
+        <if test="countryEntity!=null and  countryEntity.numericCode !=null">
+            and new_data::jsonb->>'numericCode' = #{countryEntity.numericCode}
+        </if>
+        <if test="countryEntity!=null and  countryEntity.iso3 != null">
+            and lower(new_data::jsonb->>'iso3') ilike lower(#{countryEntity.iso3})
+        </if>
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.name!=null and  countryDynamicFormEntity.name!='' ">
+            and new_data::jsonb->>'name'= #{countryDynamicFormEntity.name}
+        </if>
+
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.countryIso3!=null and  countryDynamicFormEntity.countryIso3!='' ">
+            and new_data::jsonb->>'countryIso3'= #{countryDynamicFormEntity.countryIso3}
+        </if>
+
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.type!=null and  countryDynamicFormEntity.type!='' ">
+            and new_data::jsonb->>'type'= #{countryDynamicFormEntity.type}
+        </if>
+
+        <if test="filterType=='DATE_OVERLAPPED' and countryDynamicFormEntity!=null and countryDynamicFormEntity.effectiveFrom!=null and  countryDynamicFormEntity.effectiveFrom!='' and countryDynamicFormEntity.effectiveTo!=null and  countryDynamicFormEntity.effectiveTo!='' ">
+            and new_data::jsonb->>'effectiveTo' >= #{countryDynamicFormEntity.effectiveFrom} and
+                new_data::jsonb->>'effectiveFrom' &lt;= #{countryDynamicFormEntity.effectiveTo}
+        </if>
+
+    </select>
+
+    <select id="findAll" resultMap="audit">
+        Select * from countries.audit_logs where 1=1
+        <if test="statusList.size()>0">
+            and lower(status) in
+            <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+                lower(#{item})
+            </foreach>
+        </if>
+
+        <if test="entity!=null and entity!=''">
+            and entity=#{entity}
+        </if>
+
+        <if test="entityKey!=null and entityKey!=''">
+            and  entity_key= #{entityKey}
+        </if>
+        <if test="searchParameter!=null">
+            <bind name="pattern" value="'%' + searchParameter +'%'"/>
+            and concat(new_data->>'name',new_data->>'iso3',action,requested_by,requested_on) ilike #{pattern}
+        </if>
+
+
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.name!=null and  countryDynamicFormEntity.name!='' ">
+            and lower(new_data::jsonb->>'name')= lower(#{countryDynamicFormEntity.name})
+        </if>
+
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.countryIso3!=null and  countryDynamicFormEntity.countryIso3!='' ">
+            and new_data::jsonb->>'countryIso3'= #{countryDynamicFormEntity.countryIso3}
+        </if>
+
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.type!=null and  countryDynamicFormEntity.type!='' ">
+            and new_data::jsonb->>'type'= #{countryDynamicFormEntity.type}
+        </if>
+
+        <if test="filterType=='DATE_OVERLAPPED' and countryDynamicFormEntity!=null and countryDynamicFormEntity.effectiveFrom!=null and  countryDynamicFormEntity.effectiveFrom!='' and countryDynamicFormEntity.effectiveTo!=null and  countryDynamicFormEntity.effectiveTo!='' ">
+            and new_data::jsonb->>'effectiveTo' >= #{countryDynamicFormEntity.effectiveFrom} and
+            new_data::jsonb->>'effectiveFrom' &lt;= #{countryDynamicFormEntity.effectiveTo}
+        </if>
+
+        <if test="sortBy!='' and sortBy!=null">
+            <if test="sortBy=='name' || sortBy == 'code'">
+                order by (new_data::jsonb->> #{sortBy})
+            </if>
+            <if test="sortBy!='name' and sortBy!='code'">
+                order by ${sortBy}
+            </if>
+            <if test="sortParameter!='' and sortParameter!=null">
+                ${sortParameter}
+            </if>
+        </if>
+
+        <if test="startingIndex!=null">
+            limit #{pageSize} offset #{startingIndex}
+        </if>
+    </select>
+
+
+    <update id="update">
+        Update countries.audit_logs
+        <set>
+
+            <if test="status!=null">
+                status=#{status},
+            </if>
+            <if test="respondedBy!=null">
+                responded_by=#{respondedBy},
+            </if>
+
+            <if test="respondedOn!=null">
+                responded_on=#{respondedOn},
+            </if>
+
+            <if test="responseRemarks!=null and responseRemarks!=''">
+                response_remarks=#{responseRemarks}
+            </if>
+
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="countTotalRecord" resultType="long">
+        SELECT count(*) from countries.audit_logs
+        where 1=1
+
+        <if test="statusList.size()>0">
+            and lower(status) in
+            <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+                lower(#{item})
+            </foreach>
+        </if>
+        <if test="entity!=null and entity!=''">
+            and entity=#{entity}
+        </if>
+        <if test="entityKey!=null and entityKey!=''">
+            and  entity_key= #{entityKey}
+        </if>
+
+        <if test="searchParameter!=null and searchParameter!=''">
+            <bind name="pattern" value="'%' + searchParameter +'%'"/>
+            and concat(new_data->>'name',new_data->>'iso3',action,requested_by,requested_on) ilike #{pattern}
+        </if>
+          <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.name!=null and  countryDynamicFormEntity.name!='' ">
+        and lower(new_data::jsonb->>'name')= lower(#{countryDynamicFormEntity.name})
+    </if>
+
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.countryIso3!=null and  countryDynamicFormEntity.countryIso3!='' ">
+            and new_data::jsonb->>'countryIso3'= #{countryDynamicFormEntity.countryIso3}
+        </if>
+
+        <if test="countryDynamicFormEntity!=null and countryDynamicFormEntity.type!=null and  countryDynamicFormEntity.type!='' ">
+            and new_data::jsonb->>'type'= #{countryDynamicFormEntity.type}
+        </if>
+
+        <if test="filterType=='DATE_OVERLAPPED' and countryDynamicFormEntity!=null and countryDynamicFormEntity.effectiveFrom!=null and  countryDynamicFormEntity.effectiveFrom!='' and countryDynamicFormEntity.effectiveTo!=null and  countryDynamicFormEntity.effectiveTo!='' ">
+            and new_data::jsonb->>'effectiveTo' >= #{countryDynamicFormEntity.effectiveFrom} and
+            new_data::jsonb->>'effectiveFrom' &lt;= #{countryDynamicFormEntity.effectiveTo}
+        </if>
+    </select>
+
+    <select id="findByDynamicQuery" resultMap="audit">
+        SELECT id, entity, entity_key, action, status, new_data, changes, requested_by, requested_on,
+        responded_by, responded_on, response_remarks
+        FROM countries.audit_logs
+        WHERE 1=1
+        <if test="reportModels != null and reportModels.size() > 0">
+            <foreach collection="reportModels" index="index" item="AuditReportModel">
+                ${AuditReportModel.toString()}
+            </foreach>
+        </if>
+        <if test="sortField != null and sortField !=''">
+            ORDER BY
+            <choose>
+                <when test="sortField=='title'">
+                    new_data::jsonb->>'title'
+                </when>
+                <when test="sortField=='code'">
+                    new_data::jsonb->>'code'
+                </when>
+                <when test="sortField=='name'">
+                    new_data::jsonb->>'name'
+                </when>
+                <otherwise>
+                    ${sortField}
+                </otherwise>
+            </choose>
+            ${sortOrder}
+        </if>
+        <if test="pageSize !=0 and pageSize !=null">
+            limit #{pageSize} offset #{startingIndex}
+        </if>
+    </select>
+    <select id="countByDynamicFilter" resultType="long">
+        SELECT count(DISTINCT id) FROM countries.audit_logs
+        WHERE 1=1
+        <if test="reportModels != null and reportModels.size() > 0">
+            <foreach collection="reportModels" index="index" item="AuditReportModel">
+                ${AuditReportModel.toString()}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

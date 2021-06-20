@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ConfigDao">
+    <resultMap id="config"
+               type="global.citytech.remitpulse.countries.repositories.internal.dao.country.config.ConfigEntity">
+        <result column="country_iso3_code" property="countryIso3Code"/>
+        <result column="id_types" property="idTypes"/>
+        <result column="purpose_of_remittances" property="purposeOfRemittances"/>
+        <result column="source_of_funds" property="sourceOfFunds"/>
+        <result column="relationships" property="relationships"/>
+        <result column="occupations" property="occupations"/>
+    </resultMap>
+
+    <insert id="add"
+            parameterType="global.citytech.remitpulse.countries.repositories.internal.dao.country.config.ConfigEntity">
+      INSERT INTO countries.country_configs(country_iso3_code,id_types ,purpose_of_remittances ,source_of_funds , relationships , occupations)
+    VALUES (#{countryIso3Code}, #{idTypes}, #{purposeOfRemittances}, #{sourceOfFunds}, #{relationships}, #{occupations})
+    </insert>
+
+    <update id="update">
+        update countries.country_configs
+        <set>
+            <if test="idTypes!=null">
+                id_types=#{idTypes},
+            </if>
+            <if test="purposeOfRemittances!=null">
+                purpose_of_remittances=#{purposeOfRemittances},
+            </if>
+            <if test="sourceOfFunds!=null">
+                source_of_funds=#{sourceOfFunds},
+            </if>
+            <if test="relationships!=null">
+                relationships=#{relationships},
+            </if>
+            <if test="occupations!=null">
+                occupations=#{occupations},
+            </if>
+        </set>
+        where country_iso3_code=#{countryIso3Code}
+    </update>
+</mapper>

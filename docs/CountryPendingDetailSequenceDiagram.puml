@@ -1,0 +1,25 @@
+@startuml
+header Country Pending Detail Sequence Diagram
+autonumber
+actor Admin
+
+participant CountryService
+Database AuditDao
+
+Admin ->> CountryService: Submit audit log id
+CountryService -> CountryService : prepare audit log Filter Criteria
+activate CountryService
+CountryService -> AuditDao : Get audit log entity
+CountryService <- AuditDao: Return audit log entity or empty
+Admin <- CountryService: [<b>Audit log does not exists  </b> ] throw Exception
+deactivate CountryService
+
+CountryService -> CountryService: convert audit log entity to audit log info view
+activate CountryService
+Admin <- CountryService: Return success response with audit log info
+deactivate CountryService
+
+
+
+
+@enduml

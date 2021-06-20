@@ -1,0 +1,24 @@
+@startuml
+header Country Pending List Sequence Diagram
+autonumber
+actor Admin
+
+participant CountryService
+Database AuditDao
+
+Admin ->> CountryService : Submit search criteria \n to get country audit logs
+
+CountryService -> CountryService: prepareFilterCriteria()
+activate CountryService
+
+deactivate CountryService
+
+CountryService->> AuditDao: getPendingCountryAuditLogFromAuditDao()
+CountryService <-- AuditDao: Return audit logs or empty
+activate CountryService
+Admin <-- CountryService: [<b>Empty</b>] Return success response \n with empty audit list
+CountryService -> CountryService: prepareAuditListToSend()
+CountryService -> Admin: Return success response with audit log list
+deactivate CountryService
+deactivate CountryService
+@enduml

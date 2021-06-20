@@ -1,0 +1,153 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: remitpulse-countries
+  labels:
+    app: remitpulse-countries
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: remitpulse-countries
+  template:
+    metadata:
+      labels:
+        app: remitpulse-countries
+    spec:
+      containers:
+        - name: remitpulse-countries
+          image: repo.citytech.global/remitpulse-countries:${BUILD_NUMBER}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - containerPort: 443
+          env:
+            - name: DEPLOYMENT_NAMESPACE
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: DEPLOYMENT_NAMESPACE
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: JWT_KEY
+            - name: ORIGINATOR
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: ORIGINATOR
+            - name: DB_DRIVER
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: DB_DRIVER
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: DB_URL
+            - name: DB_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: DB_USER_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: DB_PASSWORD
+            - name: GATEWAY_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-secret
+                  key: GATEWAY_URL
+            - name: JVM_OPTS
+              value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=80"
+            - name: AUTH_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: AUTH_SERVICE_URL
+            - name: CALCULATION_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: CALCULATION_SERVICE_URL
+            - name: COMPLIANCES_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: COMPLIANCES_SERVICE_URL
+            - name: COUNTRY_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: COUNTRY_SERVICE_URL
+            - name: CURRENCY_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: CURRENCY_SERVICE_URL
+            - name: CUSTOMER_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: CUSTOMER_SERVICE_URL
+            - name: HUB_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: HUB_SERVICE_URL
+            - name: MASTER_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: MASTER_SERVICE_URL
+            - name: PARTNER_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: PARTNER_SERVICE_URL
+            - name: IDENTITY_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: IDENTITY_SERVICE_URL
+            - name: MODULE_CONFIG_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: MODULE_CONFIG_SERVICE_URL
+            - name: COMMISSION_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: COMMISSION_SERVICE_URL
+            - name: CUSTOMFIELD_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: remitpulse-backend-route
+                  key: CUSTOMFIELD_SERVICE_URL
+          resources:
+            limits:
+              cpu: 350m
+              memory: 256Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /v1/countries/ping
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /v1/countries/ping
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 30

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CountryDao">
+    <resultMap id="country" type="global.citytech.remitpulse.countries.repositories.internal.dao.country.CountryEntity">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="numeric_code" property="numericCode"/>
+        <result column="iso2" property="iso2"/>
+        <result column="iso3" property="iso3"/>
+        <result column="currencies" property="currencies"/>
+        <result column="operation_types" property="operationTypes"/>
+        <result column="corridors" property="corridors"/>
+        <result column="payment_methods" property="paymentMethods"/>
+        <result column="created_on" property="createdOn"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="last_modified_on" property="lastModifiedOn"/>
+        <result column="last_modified_by" property="lastModifiedBy"/>
+        <result column="is_active" property="active"/>
+        <result column="deleted_on" property="deletedOn"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <resultMap id="countryView"
+               type="global.citytech.remitpulse.countries.repositories.internal.dao.country.CountryView">
+        <result column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="numeric_code" property="numericCode"/>
+        <result column="iso2" property="iso2"/>
+        <result column="iso3" property="iso3"/>
+        <result column="currencies" property="currencies"/>
+        <result column="operation_types" property="operationTypes"/>
+        <result column="corridors" property="corridors"/>
+        <result column="payment_methods" property="paymentMethods"/>
+        <result column="is_active" property="active"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_on" property="createdOn"/>
+        <result column="last_modified_by" property="lastModifiedBy"/>
+        <result column="last_modified_on" property="lastModifiedOn"/>
+        <result column="deleted_by" property="deletedBy"/>
+        <result column="deleted_on" property="deletedOn"/>
+
+        <result column="country_iso3_code" property="countryIso3Code"/>
+        <result column="id_types" property="idTypes"/>
+        <result column="purpose_of_remittances" property="purposeOfRemittances"/>
+        <result column="source_of_funds" property="sourceOfFunds"/>
+        <result column="relationships" property="relationships"/>
+        <result column="occupations" property="occupations"/>
+    </resultMap>
+
+    <insert id="add"
+            parameterType="global.citytech.remitpulse.countries.repositories.internal.dao.country.CountryEntity">
+      INSERT INTO countries.countries(
+      id,name ,numeric_code ,iso2 , iso3 ,
+      currencies,operation_types,corridors,payment_methods,created_on ,created_by ,is_active
+            )
+    VALUES (   #{id}, #{name}, #{numericCode}, #{iso2}, #{iso3},
+
+    #{currencies},#{operationTypes},#{corridors},#{paymentMethods},#{createdOn}, #{createdBy}, #{active}
+
+     )
+    </insert>
+
+    <update id="update">
+        update countries.countries
+        <set>
+            <if test="active!=null">
+                is_active=#{active},
+            </if>
+            <if test="operationTypes!=null">
+                operation_types=#{operationTypes},
+            </if>
+            <if test="currencies!=null">
+                currencies=#{currencies},
+            </if>
+            <if test="corridors!=null">
+                corridors=#{corridors},
+            </if>
+            <if test="paymentMethods!=null">
+                payment_methods=#{paymentMethods},
+            </if>
+            <if test="lastModifiedBy!=null">
+                last_modified_by=#{lastModifiedBy},
+            </if>
+            <if test="lastModifiedOn!=null">
+                last_modified_on=#{lastModifiedOn},
+            </if>
+
+        </set>
+
+        where id=#{id}
+    </update>
+
+    <select id="findOne" resultMap="countryView">
+        Select cou.*, config.* from countries.countries cou left join countries.country_configs config on
+        cou.iso3 = config.country_iso3_code
+        where 1=1
+        <if test="name!=null">
+            AND name=#{name}
+        </if>
+        <if test="iso2!=null">
+            AND iso2=#{iso2}
+        </if>
+        <if test="iso3!=null">
+            AND iso3=#{iso3}
+        </if>
+        <if test="numericCode!=null">
+            AND numeric_code=#{numericCode}
+        </if>
+        <if test="id!=null">
+            ANd id= #{id}
+        </if>
+    </select>
+
+    <select id="findAll" resultMap="country">
+        Select cou.*, config.* from countries.countries cou left join countries.country_configs config on
+        cou.iso3 = config.country_iso3_code where 1=1
+
+        <if test="iso3List!=null and iso3List.size()>0">
+            and iso3 in
+            <foreach collection="iso3List" separator="," item="item" open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="iso2!=null and iso2!=''">
+            <bind name="pattern" value="'%'+ iso2 +'%'"/>
+            and iso2 ilike #{pattern}
+        </if>
+
+        <if test="name!=null and name!=''">
+            <bind name="pattern" value="'%'+ name +'%'"/>
+            and name ilike #{pattern}
+        </if>
+        <if test="iso3!=null and iso3!=''">
+            <bind name="pattern" value="'%'+ iso3 +'%'"/>
+            and iso3 ilike #{pattern}
+        </if>
+
+        <if test="numericCode!=null and numericCode!=''">
+            <bind name="pattern" value="'%'+ numericCode +'%'"/>
+            and numeric_code ilike #{pattern}
+        </if>
+
+        <if test="active!=null">
+            and is_active= #{active}
+        </if>
+
+        <if test="sortBy!=null">
+            order by ${sortBy} ${sortParameter}
+        </if>
+
+        <if test="startingIndex!=null">
+            limit #{pageSize} offset #{startingIndex}
+        </if>
+
+    </select>
+
+    <select id="countTotalRecord" resultType="long">
+        Select count(*) from countries.countries
+        where 1=1
+        <if test="iso3List!=null and iso3List.size()>0">
+            and iso3 in
+            <foreach collection="iso3List" separator="," item="item" open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="iso2!=null and iso2!=''">
+            <bind name="pattern" value="'%'+ iso2 +'%'"/>
+            and iso2 ilike #{pattern}
+        </if>
+
+        <if test="name!=null and name!=''">
+            <bind name="pattern" value="'%'+ name +'%'"/>
+            and name ilike #{pattern}
+        </if>
+        <if test="iso3!=null and iso3!=''">
+            <bind name="pattern" value="'%'+ iso3 +'%'"/>
+            and iso3 ilike #{pattern}
+        </if>
+
+        <if test="numericCode!=null and numericCode!=''">
+            <bind name="pattern" value="'%'+ numericCode +'%'"/>
+            and numeric_code ilike #{pattern}
+        </if>
+
+
+        <if test="active!=null">
+            and is_active= #{active}
+        </if>
+
+
+    </select>
+
+</mapper>
